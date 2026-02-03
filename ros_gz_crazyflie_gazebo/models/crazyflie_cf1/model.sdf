@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <sdf version="1.8">
-  <model name="cf2">
+  <model name="cf1">
     <link name="crazyflie/body">
       <pose> 0 0 17.425E-3 0 0 0</pose>
       <inertial>
@@ -24,9 +24,15 @@
       <visual name="crazyflie/body_visual">
         <geometry>
           <mesh>
-            <uri>meshes/cf2_assembly.dae</uri>
+            <uri>meshes/cf1_assembly.dae</uri>
           </mesh>
-        </geometry>        
+        </geometry>
+        <!-- MATERIALALLALALALALALAALAALLA -->
+        <material>
+	    <ambient>1 0 0 1</ambient> <!-- Red -->
+	    <diffuse>1 0 0 1</diffuse>
+	    <specular>0.1 0.1 0.1 1</specular>
+	</material>
       </visual>
       <sensor name="multiranger" type="gpu_lidar">"
         <pose relative_to="crazyflie/base_link">0 0 0.1 0 0 0</pose>
@@ -72,7 +78,7 @@
           <mesh>
             <uri>meshes/ccw_prop.dae</uri>
           </mesh>
-        </geometry>        
+        </geometry>
       </visual>
     </link>
     <link name="crazyflie/m2_prop">
@@ -158,7 +164,7 @@
       </axis>
     </joint>
     <plugin filename="gz-sim-multicopter-motor-model-system" name="gz::sim::systems::MulticopterMotorModel">
-      <robotNamespace>crazyflie</robotNamespace>
+      <robotNamespace>cf1</robotNamespace>
       <jointName>crazyflie/m1_joint</jointName>
       <linkName>crazyflie/m1_prop</linkName>
       <turningDirection>ccw</turningDirection>
@@ -172,7 +178,7 @@
       <motorType>velocity</motorType>
     </plugin>
     <plugin filename="gz-sim-multicopter-motor-model-system" name="gz::sim::systems::MulticopterMotorModel">
-      <robotNamespace>crazyflie</robotNamespace>
+      <robotNamespace>cf1</robotNamespace>
       <jointName>crazyflie/m2_joint</jointName>
       <linkName>crazyflie/m2_prop</linkName>
       <turningDirection>cw</turningDirection>
@@ -186,7 +192,7 @@
       <motorType>velocity</motorType>
     </plugin>
     <plugin filename="gz-sim-multicopter-motor-model-system" name="gz::sim::systems::MulticopterMotorModel">
-      <robotNamespace>crazyflie</robotNamespace>
+      <robotNamespace>cf1</robotNamespace>
       <jointName>crazyflie/m3_joint</jointName>
       <linkName>crazyflie/m3_prop</linkName>
       <turningDirection>ccw</turningDirection>
@@ -200,7 +206,7 @@
       <motorType>velocity</motorType>
     </plugin>
     <plugin filename="gz-sim-multicopter-motor-model-system" name="gz::sim::systems::MulticopterMotorModel">
-      <robotNamespace>crazyflie</robotNamespace>
+      <robotNamespace>cf1</robotNamespace>
       <jointName>crazyflie/m4_joint</jointName>
       <linkName>crazyflie/m4_prop</linkName>
       <turningDirection>cw</turningDirection>
@@ -214,7 +220,7 @@
       <motorType>velocity</motorType>
     </plugin>
     <plugin filename="gz-sim-multicopter-control-system" name="gz::sim::systems::MulticopterVelocityControl">
-      <robotNamespace>cf2</robotNamespace>
+      <robotNamespace>cf1</robotNamespace>
       <commandSubTopic>gazebo/command/twist</commandSubTopic>
       <enableSubTopic>enable</enableSubTopic>
       <comLinkName>crazyflie/body</comLinkName>
