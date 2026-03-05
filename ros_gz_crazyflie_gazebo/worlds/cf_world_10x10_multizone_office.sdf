@@ -1,0 +1,158 @@
+<?xml version="1.0" ?>
+<sdf version="1.8">
+  <world name="demo">
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
+
+    <light name="sun" type="directional">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <attenuation>
+        <range>1000</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>200 200</size>
+            </plane>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>200 200</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>0.9 0.9 0.9 1</ambient>
+            <diffuse>0.9 0.9 0.9 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!--
+      Larger 10x10 scenario (walls at +/-5m) with multiple rooms + obstacles.
+      Designed to highlight the hybrid planner + residual:
+      - Allocation across rooms is needed (global planning).
+      - Doorways and corridors create congestion (residual helps reduce thrashing).
+      - Internal obstacles create long-tail max_age spikes for naive heuristics.
+
+      Recommended evaluation:
+      - Train in 4x4 bottleneck + mild randomization.
+      - Evaluate here as a held-out larger environment.
+    -->
+
+    <!-- Outer boundary (10x10) -->
+    <model name="outer_east"><static>true</static><pose>5 0 0.5 0 0 0</pose><link name="link">
+      <collision name="collision"><geometry><box><size>0.25 10 1</size></box></geometry></collision>
+      <visual name="visual"><geometry><box><size>0.25 10 1</size></box></geometry></visual>
+    </link></model>
+    <model name="outer_west"><static>true</static><pose>-5 0 0.5 0 0 0</pose><link name="link">
+      <collision name="collision"><geometry><box><size>0.25 10 1</size></box></geometry></collision>
+      <visual name="visual"><geometry><box><size>0.25 10 1</size></box></geometry></visual>
+    </link></model>
+    <model name="outer_north"><static>true</static><pose>0 5 0.5 0 0 1.57079632679</pose><link name="link">
+      <collision name="collision"><geometry><box><size>0.25 10 1</size></box></geometry></collision>
+      <visual name="visual"><geometry><box><size>0.25 10 1</size></box></geometry></visual>
+    </link></model>
+    <model name="outer_south"><static>true</static><pose>0 -5 0.5 0 0 1.57079632679</pose><link name="link">
+      <collision name="collision"><geometry><box><size>0.25 10 1</size></box></geometry></collision>
+      <visual name="visual"><geometry><box><size>0.25 10 1</size></box></geometry></visual>
+    </link></model>
+
+    <!-- Central cross walls making four main rooms (with limited doors) -->
+
+    <!-- Vertical wall x=0, leave doors at y=-2.0 and y=+2.0 (1.0m each) -->
+    <model name="vwall_seg_1"><static>true</static><pose>0 -4.0 0.5 0 0 0</pose><link name="link">
+      <collision name="collision"><geometry><box><size>0.18 2.0 1</size></box></geometry></collision>
+      <visual name="visual"><geometry><box><size>0.18 2.0 1</size></box></geometry></visual>
+    </link></model>
+    <model name="vwall_seg_2"><static>true</static><pose>0 -1.0 0.5 0 0 0</pose><link name="link">
+      <collision name="collision"><geometry><box><size>0.18 1.0 1</size></box></geometry></collision>
+      <visual name="visual"><geometry><box><size>0.18 1.0 1</size></box></geometry></visual>
+    </link></model>
+    <model name="vwall_seg_3"><static>true</static><pose>0 1.0 0.5 0 0 0</pose><link name="link">
+      <collision name="collision"><geometry><box><size>0.18 1.0 1</size></box></geometry></collision>
+      <visual name="visual"><geometry><box><size>0.18 1.0 1</size></box></geometry></visual>
+    </link></model>
+    <model name="vwall_seg_4"><static>true</static><pose>0 4.0 0.5 0 0 0</pose><link name="link">
+      <collision name="collision"><geometry><box><size>0.18 2.0 1</size></box></geometry></collision>
+      <visual name="visual"><geometry><box><size>0.18 2.0 1</size></box></geometry></visual>
+    </link></model>
+
+    <!-- Horizontal wall y=0, leave doors at x=-2.0 and x=+2.0 -->
+    <model name="hwall_seg_1"><static>true</static><pose>-4.0 0 0.5 0 0 1.57079632679</pose><link name="link">
+      <collision name="collision"><geometry><box><size>0.18 2.0 1</size></box></geometry></collision>
+      <visual name="visual"><geometry><box><size>0.18 2.0 1</size></box></geometry></visual>
+    </link></model>
+    <model name="hwall_seg_2"><static>true</static><pose>-1.0 0 0.5 0 0 1.57079632679</pose><link name="link">
+      <collision name="collision"><geometry><box><size>0.18 1.0 1</size></box></geometry></collision>
+      <visual name="visual"><geometry><box><size>0.18 1.0 1</size></box></geometry></visual>
+    </link></model>
+    <model name="hwall_seg_3"><static>true</static><pose>1.0 0 0.5 0 0 1.57079632679</pose><link name="link">
+      <collision name="collision"><geometry><box><size>0.18 1.0 1</size></box></geometry></collision>
+      <visual name="visual"><geometry><box><size>0.18 1.0 1</size></box></geometry></visual>
+    </link></model>
+    <model name="hwall_seg_4"><static>true</static><pose>4.0 0 0.5 0 0 1.57079632679</pose><link name="link">
+      <collision name="collision"><geometry><box><size>0.18 2.0 1</size></box></geometry></collision>
+      <visual name="visual"><geometry><box><size>0.18 2.0 1</size></box></geometry></visual>
+    </link></model>
+
+    <!-- Room obstacles (warehouse shelves + pillars) -->
+
+    <!-- NW room shelves -->
+    <model name="nw_shelf_1"><static>true</static><pose>-3.2 3.0 0.5 0 0 0</pose><link name="link">
+      <collision name="collision"><geometry><box><size>0.3 3.0 1</size></box></geometry></collision>
+      <visual name="visual"><geometry><box><size>0.3 3.0 1</size></box></geometry></visual>
+    </link></model>
+    <model name="nw_shelf_2"><static>true</static><pose>-4.2 3.0 0.5 0 0 0</pose><link name="link">
+      <collision name="collision"><geometry><box><size>0.3 3.0 1</size></box></geometry></collision>
+      <visual name="visual"><geometry><box><size>0.3 3.0 1</size></box></geometry></visual>
+    </link></model>
+
+    <!-- NE pillars near doorway at (x~2,y~0) -->
+    <model name="ne_pillar_1"><static>true</static><pose>1.6 0.6 0.5 0 0 0</pose><link name="link">
+      <collision name="collision"><geometry><cylinder><radius>0.12</radius><length>1</length></cylinder></geometry></collision>
+      <visual name="visual"><geometry><cylinder><radius>0.12</radius><length>1</length></cylinder></geometry></visual>
+    </link></model>
+    <model name="ne_pillar_2"><static>true</static><pose>2.4 -0.6 0.5 0 0 0</pose><link name="link">
+      <collision name="collision"><geometry><cylinder><radius>0.12</radius><length>1</length></cylinder></geometry></collision>
+      <visual name="visual"><geometry><cylinder><radius>0.12</radius><length>1</length></cylinder></geometry></visual>
+    </link></model>
+
+    <!-- SW room: zig-zag corridor using two walls -->
+    <model name="sw_wall_1"><static>true</static><pose>-2.8 -2.0 0.5 0 0 1.57079632679</pose><link name="link">
+      <collision name="collision"><geometry><box><size>0.18 3.0 1</size></box></geometry></collision>
+      <visual name="visual"><geometry><box><size>0.18 3.0 1</size></box></geometry></visual>
+    </link></model>
+    <model name="sw_wall_2"><static>true</static><pose>-3.6 -3.6 0.5 0 0 0</pose><link name="link">
+      <collision name="collision"><geometry><box><size>0.18 2.4 1</size></box></geometry></collision>
+      <visual name="visual"><geometry><box><size>0.18 2.4 1</size></box></geometry></visual>
+    </link></model>
+
+    <!-- SE room: shelves -->
+    <model name="se_shelf_1"><static>true</static><pose>3.8 -3.0 0.5 0 0 0</pose><link name="link">
+      <collision name="collision"><geometry><box><size>0.3 3.0 1</size></box></geometry></collision>
+      <visual name="visual"><geometry><box><size>0.3 3.0 1</size></box></geometry></visual>
+    </link></model>
+
+  </world>
+</sdf>
