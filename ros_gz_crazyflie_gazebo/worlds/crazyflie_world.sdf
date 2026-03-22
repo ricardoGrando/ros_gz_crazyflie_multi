@@ -41,111 +41,128 @@
             </plane>
           </geometry>
           <material>
-            <ambient>0.8 0.8 0.8 1</ambient>
-            <diffuse>0.8 0.8 0.8 1</diffuse>
-            <specular>0.8 0.8 0.8 1</specular>
+            <ambient>0.85 0.85 0.85 1</ambient>
+            <diffuse>0.85 0.85 0.85 1</diffuse>
           </material>
         </visual>
       </link>
     </model>
 
-    <!--
-      NOTE:
-      Do not include UAV models here if your multi-UAV launcher spawns them dynamically.
-      If you need a static single UAV in-world, uncomment the include below.
-
-      <include>
-        <uri>model://crazyflie</uri>
-        <name>crazyflie</name>
-        <pose>0 0 0 0 0 0</pose>
-      </include>
-    -->
-
-    <!-- 4x4 m arena walls with COLLISION enabled -->
-
+    <!-- Outer 4x4 boundary with collision -->
     <model name="arena_wall_east">
       <static>true</static>
       <pose>2 0 0.5 0 0 0</pose>
       <link name="link">
-        <collision name="collision">
-          <geometry>
-            <box><size>0.2 4 1</size></box>
-          </geometry>
-        </collision>
-        <visual name="visual">
-          <geometry>
-            <box><size>0.2 4 1</size></box>
-          </geometry>
-          <material>
-            <ambient>0.2 0.2 0.2 1</ambient>
-            <diffuse>0.2 0.2 0.2 1</diffuse>
-          </material>
-        </visual>
+        <collision name="collision"><geometry><box><size>0.2 4 1</size></box></geometry></collision>
+        <visual name="visual"><geometry><box><size>0.2 4 1</size></box></geometry></visual>
       </link>
     </model>
-
     <model name="arena_wall_west">
       <static>true</static>
       <pose>-2 0 0.5 0 0 0</pose>
       <link name="link">
-        <collision name="collision">
-          <geometry>
-            <box><size>0.2 4 1</size></box>
-          </geometry>
-        </collision>
-        <visual name="visual">
-          <geometry>
-            <box><size>0.2 4 1</size></box>
-          </geometry>
-          <material>
-            <ambient>0.2 0.2 0.2 1</ambient>
-            <diffuse>0.2 0.2 0.2 1</diffuse>
-          </material>
-        </visual>
+        <collision name="collision"><geometry><box><size>0.2 4 1</size></box></geometry></collision>
+        <visual name="visual"><geometry><box><size>0.2 4 1</size></box></geometry></visual>
       </link>
     </model>
-
     <model name="arena_wall_north">
       <static>true</static>
       <pose>0 2 0.5 0 0 1.57079632679</pose>
       <link name="link">
-        <collision name="collision">
-          <geometry>
-            <box><size>0.2 4 1</size></box>
-          </geometry>
-        </collision>
-        <visual name="visual">
-          <geometry>
-            <box><size>0.2 4 1</size></box>
-          </geometry>
-          <material>
-            <ambient>0.2 0.2 0.2 1</ambient>
-            <diffuse>0.2 0.2 0.2 1</diffuse>
-          </material>
-        </visual>
+        <collision name="collision"><geometry><box><size>0.2 4 1</size></box></geometry></collision>
+        <visual name="visual"><geometry><box><size>0.2 4 1</size></box></geometry></visual>
       </link>
     </model>
-
     <model name="arena_wall_south">
       <static>true</static>
       <pose>0 -2 0.5 0 0 1.57079632679</pose>
       <link name="link">
-        <collision name="collision">
-          <geometry>
-            <box><size>0.2 4 1</size></box>
-          </geometry>
-        </collision>
-        <visual name="visual">
-          <geometry>
-            <box><size>0.2 4 1</size></box>
-          </geometry>
-          <material>
-            <ambient>0.2 0.2 0.2 1</ambient>
-            <diffuse>0.2 0.2 0.2 1</diffuse>
-          </material>
+        <collision name="collision"><geometry><box><size>0.2 4 1</size></box></geometry></collision>
+        <visual name="visual"><geometry><box><size>0.2 4 1</size></box></geometry></visual>
+      </link>
+    </model>
+
+    <!--
+      Challenging 4x4 scenario designed to show residual benefit:
+      - Two rooms split by a wall at x=0.
+      - A single narrow door (bottleneck) at y=-0.9.
+      - A secondary internal wall creates an S-bend corridor.
+      - Pillars near the door create congestion and collision risk.
+
+      Heuristic-only tends to: (i) over-send robots to the same side, (ii) congest at the door,
+      and (iii) create long tail max_age spikes for PoIs in the under-served room.
+      Residual learning can improve by spreading traffic and reducing door thrashing.
+    -->
+
+    <!-- Split wall at x=0 with a single narrow door (gap from y=-1.25 to y=-0.55 => 0.70 m) -->
+    <model name="split_wall_top">
+      <static>true</static>
+      <pose>0 0.725 0.5 0 0 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>0.15 2.55 1</size></box></geometry></collision>
+        <visual name="visual"><geometry><box><size>0.15 2.55 1</size></box></geometry>
+          <material><ambient>0.1 0.1 0.6 1</ambient><diffuse>0.1 0.1 0.6 1</diffuse></material>
         </visual>
       </link>
     </model>
+
+    <model name="split_wall_bottom">
+      <static>true</static>
+      <pose>0 -1.625 0.5 0 0 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>0.15 0.75 1</size></box></geometry></collision>
+        <visual name="visual"><geometry><box><size>0.15 0.75 1</size></box></geometry>
+          <material><ambient>0.1 0.1 0.6 1</ambient><diffuse>0.1 0.1 0.6 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- S-bend wall in right room (forces path choices) -->
+    <model name="right_wall_1a">
+      <static>true</static>
+      <pose>0.5 0.3 0.5 0 0 1.57079632679</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>0.15 1.0 1</size></box></geometry></collision>
+        <visual name="visual"><geometry><box><size>0.15 1.0 1</size></box></geometry>
+          <material><ambient>0.6 0.3 0.1 1</ambient><diffuse>0.6 0.3 0.1 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="right_wall_1b">
+      <static>true</static>
+      <pose>1.8 0.3 0.5 0 0 1.57079632679</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>0.15 0.4 1</size></box></geometry></collision>
+        <visual name="visual"><geometry><box><size>0.15 0.4 1</size></box></geometry>
+          <material><ambient>0.6 0.3 0.1 1</ambient><diffuse>0.6 0.3 0.1 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+    <model name="right_wall_2">
+      <static>true</static>
+      <pose>1.45 -1.1 0.5 0 0 0</pose>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>0.15 1.7 1</size></box></geometry></collision>
+        <visual name="visual"><geometry><box><size>0.15 1.7 1</size></box></geometry>
+          <material><ambient>0.6 0.3 0.1 1</ambient><diffuse>0.6 0.3 0.1 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Pillars near the door to create local congestion -->
+    <model name="pillar_1"><static>true</static><pose>-0.35 -0.9 0.5 0 0 0</pose><link name="link">
+      <collision name="collision"><geometry><cylinder><radius>0.08</radius><length>1</length></cylinder></geometry></collision>
+      <visual name="visual"><geometry><cylinder><radius>0.08</radius><length>1</length></cylinder></geometry></visual>
+    </link></model>
+    <model name="pillar_2"><static>true</static><pose>0.35 -0.9 0.5 0 0 0</pose><link name="link">
+      <collision name="collision"><geometry><cylinder><radius>0.08</radius><length>1</length></cylinder></geometry></collision>
+      <visual name="visual"><geometry><cylinder><radius>0.08</radius><length>1</length></cylinder></geometry></visual>
+    </link></model>
+    <model name="pillar_3"><static>true</static><pose>0.0 -1.25 0.5 0 0 0</pose><link name="link">
+      <collision name="collision"><geometry><cylinder><radius>0.08</radius><length>1</length></cylinder></geometry></collision>
+      <visual name="visual"><geometry><cylinder><radius>0.08</radius><length>1</length></cylinder></geometry></visual>
+    </link></model>
 
   </world>
 </sdf>
