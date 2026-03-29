@@ -27,12 +27,12 @@
             <uri>meshes/cf1_assembly.dae</uri>
           </mesh>
         </geometry>
-        <!-- MATERIALALLALALALALALAALAALLA -->
+        <!-- MATERIALALLALALALALALAALAALLA 
         <material>
-	    <ambient>1 0 0 1</ambient> <!-- Red -->
+	    <ambient>1 0 0 1</ambient> 
 	    <diffuse>1 0 0 1</diffuse>
 	    <specular>0.1 0.1 0.1 1</specular>
-	</material>
+	</material> -->
       </visual>
       <sensor name="multiranger" type="gpu_lidar">"
         <pose relative_to="crazyflie/base_link">0 0 0.1 0 0 0</pose>
